@@ -11,6 +11,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
@@ -95,12 +96,12 @@ public class PessoaResource {
 	@GET
 	@Produces("application/json; charset=UTF-8")
 	@Path("/pessoas")
-	public List<PessoaTO> TodasPessoas(){
+	public Response TodasPessoas(){
 		
 		List<PessoaTO> pessoas =  new ArrayList<PessoaTO>();
  
 		List<EntidadePessoa> listaEntityPessoas = repository.TodasPessoas();
- 
+		
 		for (EntidadePessoa entity : listaEntityPessoas) {
  
 			pessoas.add(new PessoaTO(	entity.getIdPessoa(),
@@ -115,8 +116,14 @@ public class PessoaResource {
 										entity.getTelefoneCelular(),
 										entity.getTelefoneResidencial()));
 		}
+		
+		GenericEntity<List<PessoaTO>> entity = new GenericEntity<List<PessoaTO>>(pessoas) {};
  
-		return pessoas;
+		if(pessoas.isEmpty()){
+			return Response.status(Status.NO_CONTENT).header("Access-Control-Allow-Origin", "*").build();
+		}else{
+			return Response.ok(entity).header("Access-Control-Allow-Origin", "*").build();
+		}
 	}
  
 	@GET
